@@ -9,13 +9,35 @@ postsRouter.use((req, res, next) => {
     next()
 })
 
-postsRouter.get('/', async (req, res) => {
+postsRouter.get('/test', (req, res, next) => {
+    res.send("It workssss")
+})
 
-    const posts = await getAllPosts()
+postsRouter.get('/', async (req, res, next) => {
 
-    res.send({
-        posts: posts
-    })
+    try {
+        const allPosts = await getAllPosts()
+
+        const post = allPosts.filter(post => {
+            if (post.active) {
+                return true
+            }
+            if (req.user && post.author.id === req.user.id) {
+                return true
+            }
+            return false
+        })
+
+        //console.log("POST", post)
+
+        res.send({
+            post
+        })
+    } catch ({ name, message }) {
+        next({ name, message })
+    }
+
+
 
 })
 
